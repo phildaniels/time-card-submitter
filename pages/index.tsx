@@ -1,18 +1,9 @@
-import type { NextPage } from "next";
-import Head from "next/head";
-import Image from "next/image";
-import styles from "../styles/Home.module.css";
+import type { NextPage } from 'next';
 
 const Home: NextPage = () => {
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Time card submitter</title>
-        <meta name="description" content="Time Card Submittal Tool" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className={styles.main}></main>
+    <div>
+      <main>This is home</main>
     </div>
   );
 };
