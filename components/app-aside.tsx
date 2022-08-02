@@ -2,7 +2,7 @@ import { Aside, MediaQuery, Text } from '@mantine/core';
 
 export const AppAside = (): JSX.Element => {
   return (
-    <MediaQuery smallerThan="sm" styles={{ display: 'none' }}>
+    <MediaQuery smallerThan="sm" className="hidden" styles={{}}>
       <Aside
         p="md"
         hiddenBreakpoint="sm"

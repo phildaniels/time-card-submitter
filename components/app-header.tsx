@@ -1,4 +1,3 @@
-import { useMsal } from '@azure/msal-react';
 import {
   Avatar,
   Burger,
@@ -6,9 +5,10 @@ import {
   MantineTheme,
   MediaQuery,
   Text,
+  useMantineTheme,
 } from '@mantine/core';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { axios } from '../services/http';
+import { Dispatch, SetStateAction } from 'react';
+import Image from 'next/image';
 
 type AppHeaderProps = {
   opened: boolean;
@@ -23,6 +23,8 @@ export const AppHeader = ({
   theme,
   userProfileUrl,
 }: AppHeaderProps): JSX.Element => {
+  console.log(`🚀 ~ file: app-header.tsx ~ line 26 ~ theme`, theme);
+
   return (
     <Header height={70} p="md">
       <div
@@ -41,7 +43,16 @@ export const AppHeader = ({
             mr="xl"
           />
         </MediaQuery>
-        <Text>Application header</Text>
+        <Image
+          src={
+            theme.colorScheme === 'dark'
+              ? '/UL-Solutions--white.svg'
+              : '/UL-Solutions--no-fill.svg'
+          }
+          alt="UL Solutions Logo"
+          width={100}
+          height={100}
+        />
         <span className="spacer"></span>
         {userProfileUrl == null ? (
           <Avatar className="ul-avatar cursor-pointer" radius="xl" />

@@ -10,11 +10,20 @@ export const AppNavbar = ({ opened }: AppNavBarProps): JSX.Element => {
       p="md"
       hiddenBreakpoint="sm"
       hidden={!opened}
-      width={{
-        sm: 300,
-        lg: 400,
-        base: 100,
-      }}
+      width={
+        opened
+          ? {
+              sm: 300,
+              lg: 400,
+              base: 100,
+            }
+          : {
+              sm: 0,
+              lg: 0,
+              base: 0,
+            }
+      }
+      fixed={false}
     >
       <Navbar.Section>First section</Navbar.Section>
 

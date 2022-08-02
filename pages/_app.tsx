@@ -11,7 +11,7 @@ import { MantineProvider } from '@mantine/core';
 import type { NextPage } from 'next';
 import styles from '../styles/Home.module.css';
 import { useMsalAuthentication } from '@azure/msal-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   InteractionRequiredAuthError,
   InteractionType,
@@ -26,8 +26,7 @@ import { axios } from '../services/http';
 export default function App(props: AppProps & { userProfileUrl: string }) {
   const { Component, pageProps } = props;
   const request = {
-    // scopes: [`user.read ${process.env['NEXT_PUBLIC_AZURE_AD_API_SCOPE']}`],
-    scopes: [`user.read`],
+    scopes: [`user.read ${process.env['NEXT_PUBLIC_AZURE_AD_API_SCOPE']}`],
   };
   const { login, error } = useMsalAuthentication(
     InteractionType.Silent,
@@ -35,22 +34,31 @@ export default function App(props: AppProps & { userProfileUrl: string }) {
   );
   useEffect(() => {
     if (error instanceof InteractionRequiredAuthError) {
-      // login(InteractionType.Redirect, request);
+      login(InteractionType.Redirect, request);
     }
   }, [error]);
   const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
-  const [userProfileUrl, setUserProfileUrl] = useState();
+  const firstRender = useRef(true);
+  const [userProfileUrl, setUserProfileUrl] = useState<string>();
   useEffect(() => {
+    theme.colorScheme = window.matchMedia('(prefers-color-scheme: dark)')
+      .matches
+      ? 'dark'
+      : 'light';
     const getAndSetUserProfileUrl = async () => {
       try {
+        if (!firstRender.current) {
+          return;
+        }
+        firstRender.current = false;
         const response = await axios.get<Blob>(
           'https://graph.microsoft.com/v1.0/me/photo/$value',
           {
             responseType: 'blob',
           }
         );
-        // setUserProfileUrl(URL.createObjectURL(response.data) as any);
+        setUserProfileUrl(URL.createObjectURL(response.data));
       } catch (error) {
         console.log(error);
       }
@@ -74,7 +82,7 @@ export default function App(props: AppProps & { userProfileUrl: string }) {
             withGlobalStyles
             withNormalizeCSS
             theme={{
-              colorScheme: 'light',
+              colorScheme: theme.colorScheme,
             }}
           >
             <AppShell

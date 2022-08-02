@@ -6,7 +6,7 @@ type AppFooterProps = {
 
 export const AppFooter = (): JSX.Element => {
   return (
-    <Footer height={60} p="md">
+    <Footer height={60} p="md" color="primary">
       Application footer
     </Footer>
   );
