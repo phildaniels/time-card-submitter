@@ -1,6 +1,6 @@
-@tailwind base;
+/* @tailwind base;
 @tailwind components;
-@tailwind utilities;
+@tailwind utilities; */
 
 html,
 body {
@@ -21,4 +21,12 @@ a {
 
 .spacer {
   flex: 1;
+}
+
+.ul-avatar:hover {
+  cursor: pointer;
+}
+
+.navbar-action-button {
+  margin-right: 1rem;
 }

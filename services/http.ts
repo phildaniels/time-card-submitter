@@ -6,10 +6,6 @@ axios.interceptors.request.use(async (request) => {
   const redirectResponse = await msalInstance.handleRedirectPromise();
   const account = msalInstance.getAllAccounts()[0];
   if (redirectResponse !== null && request?.headers != null) {
-    console.log(
-      `🚀 ~ file: http.ts ~ line 9 ~ axios.interceptors.request.use ~ redirectResponse`,
-      redirectResponse
-    );
     let accessToken = redirectResponse.accessToken;
     request.headers['Authorization'] = `Bearer ${accessToken}`;
   } else {

@@ -1,32 +1,45 @@
 import {
+  ActionIcon,
   Avatar,
   Burger,
+  ColorScheme,
   Header,
   MantineTheme,
   MediaQuery,
   Text,
+  useMantineColorScheme,
   useMantineTheme,
 } from '@mantine/core';
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import Image from 'next/image';
+import axios from 'axios';
+import {
+  IconLayoutSidebarRight,
+  IconLayoutSidebarRightCollapse,
+  IconLayoutSidebarRightExpand,
+  IconMoonStars,
+  IconSun,
+} from '@tabler/icons';
 
 type AppHeaderProps = {
-  opened: boolean;
-  setOpened: Dispatch<SetStateAction<boolean>>;
-  theme: MantineTheme;
+  navbarOpened: boolean;
+  asideOpened: boolean;
+  setNavbarOpen: (value: boolean | ((value: boolean) => boolean)) => void;
+  setAsideOpen: (value: boolean | ((value: boolean) => boolean)) => void;
   userProfileUrl: string | null;
 };
 
 export const AppHeader = ({
-  opened,
-  setOpened,
-  theme,
+  navbarOpened,
+  asideOpened,
+  setNavbarOpen,
+  setAsideOpen,
   userProfileUrl,
 }: AppHeaderProps): JSX.Element => {
-  console.log(`🚀 ~ file: app-header.tsx ~ line 26 ~ theme`, theme);
-
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
   return (
-    <Header height={70} p="md">
+    <Header height={70} p="md" style={{ backgroundColor: theme.colors.red[9] }}>
       <div
         style={{
           display: 'flex',
@@ -34,30 +47,48 @@ export const AppHeader = ({
           height: '100%',
         }}
       >
-        <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
-          <Burger
-            opened={opened}
-            onClick={() => setOpened((o) => !o)}
-            size="sm"
-            color={theme.colors.gray[6]}
-            mr="xl"
-          />
-        </MediaQuery>
+        <Burger
+          opened={navbarOpened}
+          onClick={() => setNavbarOpen((o) => !o)}
+          size="sm"
+          color="white"
+          mr="xl"
+        />
         <Image
-          src={
-            theme.colorScheme === 'dark'
-              ? '/UL-Solutions--white.svg'
-              : '/UL-Solutions--no-fill.svg'
-          }
+          src="/UL-Solutions--white.svg"
           alt="UL Solutions Logo"
           width={100}
           height={100}
         />
         <span className="spacer"></span>
+        <ActionIcon
+          variant="default"
+          onClick={() => toggleColorScheme()}
+          size={50}
+          className="navbar-action-button"
+        >
+          {colorScheme === 'dark' ? (
+            <IconSun size={24} />
+          ) : (
+            <IconMoonStars size={24} />
+          )}
+        </ActionIcon>
+        <ActionIcon
+          variant="default"
+          onClick={() => setAsideOpen((o) => !o)}
+          size={50}
+          className="navbar-action-button"
+        >
+          {asideOpened ? (
+            <IconLayoutSidebarRightCollapse size={24} />
+          ) : (
+            <IconLayoutSidebarRightExpand size={24} />
+          )}
+        </ActionIcon>
         {userProfileUrl == null ? (
-          <Avatar className="ul-avatar cursor-pointer" radius="xl" />
+          <Avatar size={50} className="ul-avatar" radius="xl" />
         ) : (
-          <Avatar src={userProfileUrl} radius="xl" />
+          <Avatar size={50} src={userProfileUrl} radius="xl" />
         )}
       </div>
     </Header>

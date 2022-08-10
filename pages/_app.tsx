@@ -7,11 +7,18 @@ import {
   UnauthenticatedTemplate,
 } from '@azure/msal-react';
 import Head from 'next/head';
-import { MantineProvider } from '@mantine/core';
+import {
+  Center,
+  ColorScheme,
+  ColorSchemeProvider,
+  MantineProvider,
+  MediaQuery,
+  useMantineColorScheme,
+} from '@mantine/core';
 import type { NextPage } from 'next';
 import styles from '../styles/Home.module.css';
 import { useMsalAuthentication } from '@azure/msal-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   InteractionRequiredAuthError,
   InteractionType,
@@ -25,6 +32,7 @@ import { axios } from '../services/http';
 
 export default function App(props: AppProps & { userProfileUrl: string }) {
   const { Component, pageProps } = props;
+
   const request = {
     scopes: [`user.read ${process.env['NEXT_PUBLIC_AZURE_AD_API_SCOPE']}`],
   };
@@ -38,14 +46,29 @@ export default function App(props: AppProps & { userProfileUrl: string }) {
     }
   }, [error]);
   const theme = useMantineTheme();
-  const [opened, setOpened] = useState(false);
+  const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
+  const toggleColorScheme = (value?: ColorScheme) => {
+    const newColorScheme = value ?? (colorScheme === 'dark' ? 'light' : 'dark');
+    localStorage.setItem('defaultTheme', newColorScheme);
+    setColorScheme(newColorScheme);
+  };
+  const [navbarOpened, setNavbarOpened] = useState(false);
+  const setNavbarOpenedWithLocalStorageSideAffect = (
+    value: boolean | ((value: boolean) => boolean)
+  ) => {
+    localStorage.setItem('navbarOpenedByDefault', `${!navbarOpened}`);
+    setNavbarOpened(value);
+  };
+  const [asideOpened, setAsideOpened] = useState(false);
+  const setAsideOpenedWithLocalStorageSideAffect = (
+    value: boolean | ((value: boolean) => boolean)
+  ) => {
+    localStorage.setItem('asideOpenedByDefault', `${!asideOpened}`);
+    setAsideOpened(value);
+  };
   const firstRender = useRef(true);
-  const [userProfileUrl, setUserProfileUrl] = useState<string>();
+  const [userProfileUrl, setUserProfileUrl] = useState<string | null>(null);
   useEffect(() => {
-    theme.colorScheme = window.matchMedia('(prefers-color-scheme: dark)')
-      .matches
-      ? 'dark'
-      : 'light';
     const getAndSetUserProfileUrl = async () => {
       try {
         if (!firstRender.current) {
@@ -65,11 +88,17 @@ export default function App(props: AppProps & { userProfileUrl: string }) {
     };
     getAndSetUserProfileUrl();
   }, []);
-
+  useEffect(() => {
+    toggleColorScheme(
+      (localStorage.getItem('defaultTheme') as ColorScheme) ?? 'light'
+    );
+    setNavbarOpened(localStorage.getItem('navbarOpenedByDefault') === 'true');
+    setAsideOpened(localStorage.getItem('asideOpenedByDefault') === 'true');
+  }, []);
   return (
     <>
       <Head>
-        <title>Page title</title>
+        <title>Time Card Auto Submit Tool</title>
         <meta
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width"
@@ -78,40 +107,46 @@ export default function App(props: AppProps & { userProfileUrl: string }) {
 
       <MsalProvider instance={msalInstance}>
         <AuthenticatedTemplate>
-          <MantineProvider
-            withGlobalStyles
-            withNormalizeCSS
-            theme={{
-              colorScheme: theme.colorScheme,
-            }}
+          <ColorSchemeProvider
+            colorScheme={colorScheme}
+            toggleColorScheme={toggleColorScheme}
           >
-            <AppShell
-              styles={{
-                main: {
-                  background:
-                    theme.colorScheme === 'dark'
-                      ? theme.colors.dark[8]
-                      : theme.colors.gray[0],
-                },
+            <MantineProvider
+              withGlobalStyles
+              withNormalizeCSS
+              theme={{
+                colorScheme: colorScheme,
               }}
-              navbarOffsetBreakpoint="sm"
-              asideOffsetBreakpoint="sm"
-              fixed
-              navbar={<AppNavbar opened={opened}></AppNavbar>}
-              aside={<AppAside></AppAside>}
-              footer={<AppFooter></AppFooter>}
-              header={
-                <AppHeader
-                  opened={opened}
-                  theme={theme}
-                  setOpened={setOpened}
-                  userProfileUrl={userProfileUrl ?? null}
-                ></AppHeader>
-              }
             >
-              <Component {...pageProps} />
-            </AppShell>
-          </MantineProvider>
+              <AppShell
+                styles={{
+                  main: {
+                    background:
+                      colorScheme === 'dark'
+                        ? theme.colors.dark[8]
+                        : theme.colors.gray[0],
+                  },
+                }}
+                navbarOffsetBreakpoint="sm"
+                asideOffsetBreakpoint="sm"
+                fixed
+                navbar={<AppNavbar opened={navbarOpened}></AppNavbar>}
+                aside={<AppAside opened={asideOpened}></AppAside>}
+                footer={<AppFooter></AppFooter>}
+                header={
+                  <AppHeader
+                    navbarOpened={navbarOpened}
+                    asideOpened={asideOpened}
+                    setNavbarOpen={setNavbarOpenedWithLocalStorageSideAffect}
+                    setAsideOpen={setAsideOpenedWithLocalStorageSideAffect}
+                    userProfileUrl={userProfileUrl}
+                  ></AppHeader>
+                }
+              >
+                <Component {...pageProps} />
+              </AppShell>
+            </MantineProvider>
+          </ColorSchemeProvider>
         </AuthenticatedTemplate>
         <UnauthenticatedTemplate></UnauthenticatedTemplate>
       </MsalProvider>

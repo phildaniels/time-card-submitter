@@ -1,21 +1,50 @@
-import { Navbar } from '@mantine/core';
+import {
+  Navbar,
+  ThemeIcon,
+  UnstyledButton,
+  Text,
+  useMantineColorScheme,
+} from '@mantine/core';
+import Link from 'next/link';
+
+import { Group, ActionIcon, Box } from '@mantine/core';
+import { IconHome, IconSettings } from '@tabler/icons';
 
 type AppNavBarProps = {
   opened: boolean;
 };
 
 export const AppNavbar = ({ opened }: AppNavBarProps): JSX.Element => {
+  const data = [
+    {
+      icon: <IconHome size={24} />,
+      color: 'blue',
+      label: 'Home',
+      href: '/',
+    },
+    {
+      icon: <IconSettings size={24} />,
+      color: 'teal',
+      label: 'Configure',
+      href: '/configure',
+    },
+    // { icon: <IconMessages size={16} />, color: 'violet', label: 'Discussions' },
+    // { icon: <IconDatabase size={16} />, color: 'grape', label: 'Databases' },
+  ];
+  const { colorScheme } = useMantineColorScheme();
+  if (!opened) {
+    return <></>;
+  }
   return (
     <Navbar
       p="md"
-      hiddenBreakpoint="sm"
       hidden={!opened}
       width={
         opened
           ? {
               sm: 300,
               lg: 400,
-              base: 100,
+              base: 0,
             }
           : {
               sm: 0,
@@ -25,13 +54,34 @@ export const AppNavbar = ({ opened }: AppNavBarProps): JSX.Element => {
       }
       fixed={false}
     >
-      <Navbar.Section>First section</Navbar.Section>
+      {data.map((link) => (
+        <Link href={link.href}>
+          <UnstyledButton
+            sx={(theme) => ({
+              display: 'block',
+              width: '100%',
+              padding: theme.spacing.xs,
+              borderRadius: theme.radius.sm,
+              color:
+                colorScheme === 'dark' ? theme.colors.dark[0] : theme.black,
 
-      {/* Grow section will take all available space that is not taken by first and last sections */}
-      <Navbar.Section grow>Grow section</Navbar.Section>
-
-      {/* Last section with normal height (depends on section content) */}
-      <Navbar.Section>Last section</Navbar.Section>
+              '&:hover': {
+                backgroundColor:
+                  colorScheme === 'dark'
+                    ? theme.colors.dark[6]
+                    : theme.colors.gray[0],
+              },
+            })}
+          >
+            <Group>
+              <ThemeIcon color={link.color} variant="light" size={50}>
+                {link.icon}
+              </ThemeIcon>
+              <Text size="lg">{link.label}</Text>
+            </Group>
+          </UnstyledButton>
+        </Link>
+      ))}
     </Navbar>
   );
 };
