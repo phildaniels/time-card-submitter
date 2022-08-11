@@ -55,7 +55,7 @@ export const AppNavbar = ({ opened }: AppNavBarProps): JSX.Element => {
       fixed={false}
     >
       {data.map((link) => (
-        <Link href={link.href}>
+        <Link href={link.href} key={link.label}>
           <UnstyledButton
             sx={(theme) => ({
               display: 'block',

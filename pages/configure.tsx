@@ -8,12 +8,20 @@ import {
   Text,
 } from '@mantine/core';
 import type { GetServerSideProps, NextPage } from 'next';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AppConfigureStepperStepTwo } from '../components/app-configure-stepper-step-two';
+import { axios } from '../services/http';
 const Configure: NextPage = () => {
   const [active, setActive] = useState(0);
+  const [randomNumber, setRandomNumber] = useState<number | null>(null);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [radioValue, setRadioValue] = useState(StepOneRadioSelection.Blank);
+  useEffect(() => {
+    axios
+      .get<number>('/api/randomNumber')
+      .then((response) => setRandomNumber(response.data))
+      .catch((error) => console.error(error));
+  }, []);
   const nextStep = () =>
     setActive((current: number) => (current < 3 ? current + 1 : current));
   const prevStep = () =>
@@ -21,6 +29,7 @@ const Configure: NextPage = () => {
   return (
     <>
       <Card>
+        <Text>Random Number was {randomNumber}</Text>
         <Stepper active={active} onStepClick={setActive} breakpoint="sm">
           <Stepper.Step label="Step 1" description="Select an option">
             <Radio.Group
@@ -31,13 +40,12 @@ const Configure: NextPage = () => {
               label="Select a starting option"
               description="You can re-configure this again later"
               required
-              size="lg"
+              size="md"
               orientation="vertical"
             >
               <Radio
                 value={StepOneRadioSelection.Blank}
                 label="Start with a blank timecard"
-                defaultChecked
               />
               <Radio
                 value={StepOneRadioSelection.MostRecent}
@@ -72,7 +80,6 @@ const Configure: NextPage = () => {
             />
           </Stepper.Completed>
         </Stepper>
-
         <Group position="center" mt="xl">
           <Button variant="default" disabled={active === 0} onClick={prevStep}>
             Back
@@ -114,11 +121,14 @@ export const stepOneRadioSelectionConverter = (
   }
 };
 
-export const getServerSideProps: GetServerSideProps = async () => ({
-  const randomNumber = 
-	props: {
-    isBeta: process.env.NEXT_PUBLIC_IS_IN_BETA === 'true',
-  },
-});
+// export const getServerSideProps: GetServerSideProps = async () => {
+//   const randomNumberApiResponse = await axios.get<number>('/api/randomNumber');
+//   const randomNumber = randomNumberApiResponse.data;
+//   return {
+//     props: {
+//       randomNumber,
+//     },
+//   };
+// };
 
 export default Configure;
