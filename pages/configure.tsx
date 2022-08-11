@@ -1,9 +1,19 @@
-import { Button, Card, Group, Stepper } from '@mantine/core';
-import type { GetStaticProps, NextPage } from 'next';
+import {
+  Button,
+  Card,
+  Checkbox,
+  Group,
+  Radio,
+  Stepper,
+  Text,
+} from '@mantine/core';
+import type { GetServerSideProps, NextPage } from 'next';
 import { useState } from 'react';
+import { AppConfigureStepperStepTwo } from '../components/app-configure-stepper-step-two';
 const Configure: NextPage = () => {
-  const [active, setActive] = useState(1);
-  const [opened, setOpened] = useState(false);
+  const [active, setActive] = useState(0);
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [radioValue, setRadioValue] = useState(StepOneRadioSelection.Blank);
   const nextStep = () =>
     setActive((current: number) => (current < 3 ? current + 1 : current));
   const prevStep = () =>
@@ -12,33 +22,101 @@ const Configure: NextPage = () => {
     <>
       <Card>
         <Stepper active={active} onStepClick={setActive} breakpoint="sm">
-          <Stepper.Step label="First step" description="Select an option">
-            Step 1 content: Create an account
+          <Stepper.Step label="Step 1" description="Select an option">
+            <Radio.Group
+              value={radioValue}
+              onChange={(value) =>
+                setRadioValue(stepOneRadioSelectionConverter(value))
+              }
+              label="Select a starting option"
+              description="You can re-configure this again later"
+              required
+              size="lg"
+              orientation="vertical"
+            >
+              <Radio
+                value={StepOneRadioSelection.Blank}
+                label="Start with a blank timecard"
+                defaultChecked
+              />
+              <Radio
+                value={StepOneRadioSelection.MostRecent}
+                label="Start with my most recent timecard"
+              />
+              <Radio
+                value={StepOneRadioSelection.ParticularDate}
+                label="Choose a particular date"
+              />
+            </Radio.Group>
           </Stepper.Step>
-          <Stepper.Step label="Second step" description="Verify email">
-            Step 2 content: Verify email
+          <Stepper.Step
+            label="Step 2"
+            description="Edit your default timecard submittal"
+          >
+            <AppConfigureStepperStepTwo radioSelection={radioValue} />
           </Stepper.Step>
-          <Stepper.Step label="Final step" description="Get full access">
-            Step 3 content: Get full access
+          <Stepper.Step label="Step 3" description="Confirm your timecard">
+            <Text>Review your selection</Text>
           </Stepper.Step>
           <Stepper.Completed>
-            Completed, click back button to get to previous step
+            <Text>
+              I understand that this tool has the potential to submit an
+              incorrect timecard and will use at my own risk, and that the
+              creator(s) of this tool is not liable for such a scenario
+            </Text>
+            <Checkbox
+              size="md"
+              label="I agree to the above statement"
+              checked={agreeToTerms}
+              onChange={() => setAgreeToTerms((o) => !o)}
+            />
           </Stepper.Completed>
         </Stepper>
 
         <Group position="center" mt="xl">
-          <Button variant="default" onClick={prevStep}>
+          <Button variant="default" disabled={active === 0} onClick={prevStep}>
             Back
           </Button>
-          <Button onClick={nextStep}>Next step</Button>
+          {active === 3 ? (
+            <Button
+              disabled={!agreeToTerms}
+              onClick={() => console.log('Submitted')}
+            >
+              Submit
+            </Button>
+          ) : (
+            <Button onClick={nextStep}>Next step</Button>
+          )}
         </Group>
       </Card>
     </>
   );
 };
 
-export const getStaticProps: GetStaticProps = async () => ({
-  props: {
+export enum StepOneRadioSelection {
+  Blank = 'Blank',
+  MostRecent = 'MostRecent',
+  ParticularDate = 'ParticularDate',
+}
+
+export const stepOneRadioSelectionConverter = (
+  value: string
+): StepOneRadioSelection => {
+  switch (value) {
+    case 'Blank':
+      return StepOneRadioSelection.Blank;
+    case 'MostRecent':
+      return StepOneRadioSelection.MostRecent;
+    case 'ParticularDate':
+      return StepOneRadioSelection.ParticularDate;
+    default:
+      return StepOneRadioSelection.Blank;
+  }
+};
+
+export const getServerSideProps: GetServerSideProps = async () => ({
+  const randomNumber = 
+	props: {
     isBeta: process.env.NEXT_PUBLIC_IS_IN_BETA === 'true',
   },
 });
