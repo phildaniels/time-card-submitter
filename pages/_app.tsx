@@ -5,18 +5,14 @@ import {
   AuthenticatedTemplate,
   MsalProvider,
   UnauthenticatedTemplate,
+  useMsal,
 } from '@azure/msal-react';
 import Head from 'next/head';
 import {
-  Center,
   ColorScheme,
   ColorSchemeProvider,
   MantineProvider,
-  MediaQuery,
-  useMantineColorScheme,
 } from '@mantine/core';
-import type { NextPage } from 'next';
-import styles from '../styles/Home.module.css';
 import { useMsalAuthentication } from '@azure/msal-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {

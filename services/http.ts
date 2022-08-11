@@ -11,8 +11,7 @@ axios.interceptors.request.use(async (request) => {
   } else {
     await enrichNewAccessTokenInAxiosRequest(
       account,
-      // process.env['NEXT_PUBLIC_AZURE_AD_API_SCOPE']?.split(' ') ?? [],
-      [],
+      process.env['NEXT_PUBLIC_AZURE_AD_API_SCOPE']?.split(' ') ?? [],
       request
     );
   }
@@ -30,6 +29,9 @@ const enrichNewAccessTokenInAxiosRequest = async (
     account: account,
   };
   try {
+    if (account == null) {
+      throw new InteractionRequiredAuthError();
+    }
     const accessTokenResponse = await msalInstance.acquireTokenSilent(
       accessTokenRequest
     );
@@ -39,7 +41,7 @@ const enrichNewAccessTokenInAxiosRequest = async (
     }
   } catch (error) {
     console.log(error);
-    if (error instanceof InteractionRequiredAuthError) {
+    if (!error || error instanceof InteractionRequiredAuthError) {
       await msalInstance.acquireTokenRedirect({
         ...accessTokenRequest,
         redirectStartPage: '/',

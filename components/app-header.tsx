@@ -2,24 +2,22 @@ import {
   ActionIcon,
   Avatar,
   Burger,
-  ColorScheme,
+  Button,
   Header,
-  MantineTheme,
-  MediaQuery,
-  Text,
+  Menu,
+  UnstyledButton,
   useMantineColorScheme,
   useMantineTheme,
 } from '@mantine/core';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import Image from 'next/image';
-import axios from 'axios';
 import {
-  IconLayoutSidebarRight,
   IconLayoutSidebarRightCollapse,
   IconLayoutSidebarRightExpand,
+  IconLogout,
   IconMoonStars,
   IconSun,
 } from '@tabler/icons';
+import { useMsal } from '@azure/msal-react';
 
 type AppHeaderProps = {
   navbarOpened: boolean;
@@ -36,6 +34,8 @@ export const AppHeader = ({
   setAsideOpen,
   userProfileUrl,
 }: AppHeaderProps): JSX.Element => {
+  const { instance } = useMsal();
+  const logout = () => instance.logoutRedirect();
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
   return (
@@ -85,11 +85,24 @@ export const AppHeader = ({
             <IconLayoutSidebarRightExpand size={24} />
           )}
         </ActionIcon>
-        {userProfileUrl == null ? (
-          <Avatar size={50} className="ul-avatar" radius="xl" />
-        ) : (
-          <Avatar size={50} src={userProfileUrl} radius="xl" />
-        )}
+        <Menu shadow="md" width={200}>
+          <Menu.Target>
+            <UnstyledButton>
+              {' '}
+              {userProfileUrl == null ? (
+                <Avatar size={50} className="ul-avatar" radius="xl" />
+              ) : (
+                <Avatar size={50} src={userProfileUrl} radius="xl" />
+              )}
+            </UnstyledButton>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Label>Actions</Menu.Label>
+            <Menu.Item icon={<IconLogout size={14} />} onClick={() => logout()}>
+              Logout
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
       </div>
     </Header>
   );
