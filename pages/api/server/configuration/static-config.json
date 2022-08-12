@@ -1,0 +1,4 @@
+{
+  "azureAppConfigConnectionString": "",
+  "fetchAzureAppConfigValuesInSerial": true
+}
