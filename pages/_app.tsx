@@ -30,7 +30,7 @@ export default function App(props: AppProps & { userProfileUrl: string }) {
   const { Component, pageProps } = props;
 
   const request = {
-    scopes: [`user.read ${process.env['NEXT_PUBLIC_AZURE_AD_API_SCOPE']}`],
+    scopes: [`${process.env['NEXT_PUBLIC_AZURE_AD_API_SCOPE']}`],
   };
   const { login, error } = useMsalAuthentication(
     InteractionType.Silent,

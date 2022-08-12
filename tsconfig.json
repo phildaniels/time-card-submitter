@@ -32,7 +32,19 @@
     // "baseUrl": "./",
     // "incremental": true,
     // "resolveJsonModule": true,
-    // "esModuleInterop": true
+    // "esModuleInterop": true,
+    // "lib": [
+    //   "dom",
+    //   "dom.iterable",
+    //   "esnext"
+    // ],
+    // "allowJs": true,
+    // "skipLibCheck": true,
+    // "strict": false,
+    // "forceConsistentCasingInFileNames": true,
+    // "noEmit": true,
+    // "isolatedModules": true,
+    // "jsx": "preserve"
   },
   "include": [
     "next-env.d.ts",

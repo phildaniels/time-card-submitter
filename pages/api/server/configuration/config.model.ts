@@ -3,7 +3,7 @@ import { SeverityLevel } from 'applicationinsights/out/Declarations/Contracts';
 export interface Config {
   azureAd: AzureAdConfig;
   appInsights: AppInsightsConfig;
-  // database: DatabaseConfig;
+  database: DatabaseConfig;
 }
 
 export interface AzureAdConfig {
@@ -19,7 +19,4 @@ export interface AppInsightsConfig {
   logLevel: SeverityLevel;
 }
 
-export interface DatabaseConfig {
-  flexReadonlyConnection: string;
-  flexWriteConnection: string;
-}
+export interface DatabaseConfig {}

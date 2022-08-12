@@ -38,8 +38,10 @@ export module Backend {
     await app.listen(3001);
   }
 
-  export async function getListener(): Promise<NextApiHandler<any>> {
-    const app = await getApp();
+  export async function getListener(
+    options?: NestApplicationOptions
+  ): Promise<NextApiHandler<any>> {
+    const app = await getApp(options);
     const server: http.Server = app.getHttpServer();
     const [listener] = server.listeners('request') as NextApiHandler[];
     return listener;

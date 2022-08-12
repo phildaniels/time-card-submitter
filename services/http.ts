@@ -24,7 +24,7 @@ const enrichNewAccessTokenInAxiosRequest = async (
   request: AxiosRequestConfig<any>
 ): Promise<void> => {
   const accessTokenRequest = {
-    scopes: [`user.read ${scopes.join(' ')}`.trim()],
+    scopes: [`${scopes.join(' ')}`.trim()],
     account: account,
   };
   try {

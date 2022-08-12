@@ -7,12 +7,11 @@ import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    AuthModule,
     ConfigModule.forRoot({
-      isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV ?? 'local'}`,
       load: [configuration],
     }),
+    AuthModule,
     LoggingModule,
   ],
   controllers: [AppController],

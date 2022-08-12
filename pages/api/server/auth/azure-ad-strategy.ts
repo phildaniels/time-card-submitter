@@ -11,24 +11,51 @@ export class AzureADStrategy extends PassportStrategy(
   'azure-ad'
 ) {
   constructor(private configService: ConfigService<Config>) {
-    super({
+    console.log(
+      `🚀 ~ file: azure-ad-strategy.ts ~ line 14 ~ constructor ~ configService`,
+      configService,
+      `process.env.NEXT_PUBLIC_AZURE_AD_TENANT_ID`,
+      process.env.NEXT_PUBLIC_AZURE_AD_TENANT_ID
+    );
+    const superParams = {
       identityMetadata: `https://login.microsoftonline.com/${
-        configService.get<AzureAdConfig>('azureAd').tenantId
+        configService?.get<AzureAdConfig>('azureAd')?.tenantId ??
+        process.env.NEXT_PUBLIC_AZURE_AD_TENANT_ID
       }/v2.0/.well-known/openid-configuration`,
-      clientID: configService.get<AzureAdConfig>('azureAd').clientId,
-    });
+      clientID:
+        configService?.get<AzureAdConfig>('azureAd')?.clientId ??
+        process.env.TEMPUS_AZURE_AD_CLIENT_ID,
+    };
+    console.log(
+      `🚀 ~ file: azure-ad-strategy.ts ~ line 31 ~ constructor ~ superParams`,
+      superParams
+    );
+    super(superParams);
   }
 
-  async validate(response: AzureAdResponse): Promise<AzureAdResponse> {
+  async validate(response: AzureAdResponse): Promise<AzureAdResponse | null> {
+    console.log(
+      `🚀 ~ file: azure-ad-strategy.ts ~ line 28 ~ validate ~ response`,
+      response
+    );
     if (!response || !response.aud || !response.iss) {
       return null;
     }
     const azureAdConfig = this.configService.get<AzureAdConfig>('azureAd');
-    const validIssuers = azureAdConfig.issuers;
-    const validAudiences = azureAdConfig.audiences;
+    const validIssuers = azureAdConfig?.issuers;
+    console.log(
+      `🚀 ~ file: azure-ad-strategy.ts ~ line 37 ~ validate ~ validIssuers`,
+      validIssuers
+    );
+    const validAudiences = azureAdConfig?.audiences;
+    console.log(
+      `🚀 ~ file: azure-ad-strategy.ts ~ line 39 ~ validate ~ validAudiences`,
+      validAudiences
+    );
+
     if (
-      validAudiences.includes(response.aud) &&
-      validIssuers.includes(response.iss)
+      validAudiences?.includes(response.aud) &&
+      validIssuers?.includes(response.iss)
     ) {
       return response;
     }
@@ -58,19 +85,11 @@ export interface AzureAdResponse {
   roles?: string[];
 }
 
-export const FlexAzureADRestReadGuard = AuthScopes(
-  { scopes: ['Flex.Rest.Read'], roles: ['ClientRead'] },
+export const TempusReadGuard = AuthScopes(
+  { scopes: ['Flex.Read'], roles: ['ClientFlexRead'] },
   'azure-ad'
 );
-export const FlexAzureADRestWriteGuard = AuthScopes(
-  { scopes: ['Flex.Rest.Write'], roles: ['ClientWrite'] },
-  'azure-ad'
-);
-export const FlexAzureADGraphQLGuard = AuthScopes(
-  { scopes: ['Flex.GraphQL'], roles: ['ClientGraphQL'] },
-  'azure-ad'
-);
-export const FlexAzureADODataGuard = AuthScopes(
-  { scopes: ['Flex.OData'], roles: ['ClientOData'] },
+export const TempusWriteGuard = AuthScopes(
+  { scopes: ['Flex.Write'], roles: ['ClientFlexWrite'] },
   'azure-ad'
 );
