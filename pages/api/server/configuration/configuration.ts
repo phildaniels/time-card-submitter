@@ -7,7 +7,7 @@ export default async () => {
       tenantId: process.env.NEXT_PUBLIC_AZURE_AD_TENANT_ID,
       tenant: 'ul',
       issuers: [
-        'https://login.microsoftonline.com/70115954-0ccd-45f0-87bd-03b2a3587569/v2.0',
+        `https://login.microsoftonline.com/${process.env.NEXT_PUBLIC_AZURE_AD_TENANT_ID}/v2.0`,
       ],
       audiences: [
         process.env.TEMPUS_AZURE_AD_CLIENT_ID,

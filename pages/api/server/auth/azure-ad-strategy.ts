@@ -34,25 +34,20 @@ export class AzureADStrategy extends PassportStrategy(
   }
 
   async validate(response: AzureAdResponse): Promise<AzureAdResponse | null> {
-    console.log(
-      `🚀 ~ file: azure-ad-strategy.ts ~ line 28 ~ validate ~ response`,
-      response
-    );
     if (!response || !response.aud || !response.iss) {
       return null;
     }
-    const azureAdConfig = this.configService.get<AzureAdConfig>('azureAd');
-    const validIssuers = azureAdConfig?.issuers;
-    console.log(
-      `🚀 ~ file: azure-ad-strategy.ts ~ line 37 ~ validate ~ validIssuers`,
-      validIssuers
-    );
-    const validAudiences = azureAdConfig?.audiences;
-    console.log(
-      `🚀 ~ file: azure-ad-strategy.ts ~ line 39 ~ validate ~ validAudiences`,
-      validAudiences
-    );
+    const azureAdConfig = this.configService?.get<AzureAdConfig>('azureAd');
+    const validIssuers =
+      azureAdConfig?.issuers ?? process.env.TEMPUS_VALID_ISSUERS?.split(' ');
+    const validAudiences =
+      azureAdConfig?.audiences ??
+      process.env.TEMPUS_VALID_AUDIENCES?.split(' ');
 
+    console.log(
+      `🚀 ~ file: azure-ad-strategy.ts ~ line 41 ~ validate ~ azureAdConfig`,
+      { validIssuers, validAudiences }
+    );
     if (
       validAudiences?.includes(response.aud) &&
       validIssuers?.includes(response.iss)
