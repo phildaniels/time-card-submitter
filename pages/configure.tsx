@@ -13,13 +13,21 @@ import { AppConfigureStepperStepTwo } from '../components/app-configure-stepper-
 import { axios } from '../services/http';
 const Configure: NextPage = () => {
   const [active, setActive] = useState(0);
-  const [randomNumber, setRandomNumber] = useState<number | null>(null);
+  const [randomNumber, setRandomNumber] = useState<number | string | null>(
+    null
+  );
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [radioValue, setRadioValue] = useState(StepOneRadioSelection.Blank);
   useEffect(() => {
     axios
-      .get<number>('/api/randomNumber')
-      .then((response) => setRandomNumber(response.data))
+      .get<{ randomNumber: number; message: number }>('/api/randomNumber')
+      .then((response) => {
+        console.log(
+          `🚀 ~ file: configure.tsx ~ line 30 ~ .then ~ response`,
+          response
+        );
+        setRandomNumber(response.data.randomNumber ?? response.data.message);
+      })
       .catch((error) => console.error(error));
   }, []);
   const nextStep = () =>

@@ -5,6 +5,19 @@ import { msalInstance } from './msal';
 axios.interceptors.request.use(async (request) => {
   const redirectResponse = await msalInstance.handleRedirectPromise();
   const account = msalInstance.getAllAccounts()[0];
+  if (account == null) {
+    const accessTokenRequest = {
+      scopes: [
+        `${(
+          process.env['NEXT_PUBLIC_AZURE_AD_API_SCOPE']?.split(' ') ?? []
+        ).join(' ')}`.trim(),
+      ],
+    };
+    await msalInstance.acquireTokenRedirect({
+      ...accessTokenRequest,
+      redirectStartPage: '/',
+    });
+  }
   if (redirectResponse !== null && request?.headers != null) {
     let accessToken = redirectResponse.accessToken;
     request.headers['Authorization'] = `Bearer ${accessToken}`;
