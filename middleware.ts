@@ -1,13 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const isAdminRoute = (pathname: string) => {
-  return pathname.startsWith('/api/admin');
-};
-
-const isUserRoute = (pathname: string) => {
-  return pathname.startsWith('/api/users');
-};
-
 export async function middleware(req: NextRequest) {
   const auth = req.headers.get('authorization');
   if (auth == null) {
@@ -27,8 +19,7 @@ export async function middleware(req: NextRequest) {
   }
   const base64Url = base64Split[1];
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  const buffer = Buffer.from(base64, 'base64');
-  const payloadinit = buffer.toString('ascii');
+  const payloadinit = atob(base64);
   const jwt = JSON.parse(payloadinit) as AzureAdJwt;
   if (jwt?.aud == null || jwt?.iss == null) {
     return NextResponse.redirect(new URL('/api/auth/unauthorized', req.url));
@@ -55,7 +46,7 @@ export async function middleware(req: NextRequest) {
   if (validIssuersArray?.length != null && !(validIssuersArray.length > 0)) {
     return NextResponse.redirect(new URL('/api/auth/unauthorized', req.url));
   }
-  if (!validIssuersArray.map((item) => `${item} `).includes(jwt.iss)) {
+  if (!validIssuersArray.includes(jwt.iss)) {
     return NextResponse.redirect(new URL('/api/auth/unauthorized', req.url));
   }
   return NextResponse.next();

@@ -14,83 +14,86 @@ import {
   MantineProvider,
 } from '@mantine/core';
 import { useMsalAuthentication } from '@azure/msal-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  InteractionRequiredAuthError,
-  InteractionType,
-} from '@azure/msal-browser';
+import { useEffect, useRef, useState } from 'react';
 import { AppShell, useMantineTheme } from '@mantine/core';
 import { AppNavbar } from '../components/app-nav-bar';
 import { AppAside } from '../components/app-aside';
 import { AppFooter } from '../components/app-footer';
 import { AppHeader } from '../components/app-header';
 import { axios } from '../services/http';
+import { Unauthorized } from '../components/unauthorized';
+import { EventType } from '@azure/msal-browser';
 
 export default function App(props: AppProps & { userProfileUrl: string }) {
   const { Component, pageProps } = props;
 
-  const request = {
-    scopes: [`${process.env['NEXT_PUBLIC_AZURE_AD_API_SCOPE']}`],
-  };
-  const { login, error } = useMsalAuthentication(
-    InteractionType.Silent,
-    request
-  );
-  useEffect(() => {
-    if (error instanceof InteractionRequiredAuthError) {
-      login(InteractionType.Redirect, request);
-    }
-  }, [error]);
-  const theme = useMantineTheme();
+  const accounts = msalInstance.getAllAccounts();
   const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
+  const [asideOpened, setAsideOpened] = useState(false);
+  const [userProfileUrl, setUserProfileUrl] = useState<string | null>(null);
+  const [navbarOpened, setNavbarOpened] = useState(false);
+
+  const theme = useMantineTheme();
+
   const toggleColorScheme = (value?: ColorScheme) => {
     const newColorScheme = value ?? (colorScheme === 'dark' ? 'light' : 'dark');
     localStorage.setItem('defaultTheme', newColorScheme);
     setColorScheme(newColorScheme);
   };
-  const [navbarOpened, setNavbarOpened] = useState(false);
-  const setNavbarOpenedWithLocalStorageSideAffect = (
+  const setNavbarOpenedWithLocalStorageSideEffect = (
     value: boolean | ((value: boolean) => boolean)
   ) => {
     localStorage.setItem('navbarOpenedByDefault', `${!navbarOpened}`);
     setNavbarOpened(value);
   };
-  const [asideOpened, setAsideOpened] = useState(false);
-  const setAsideOpenedWithLocalStorageSideAffect = (
+  const setAsideOpenedWithLocalStorageSideEffect = (
     value: boolean | ((value: boolean) => boolean)
   ) => {
     localStorage.setItem('asideOpenedByDefault', `${!asideOpened}`);
     setAsideOpened(value);
   };
-  const firstRender = useRef(true);
-  const [userProfileUrl, setUserProfileUrl] = useState<string | null>(null);
+
   useEffect(() => {
-    const getAndSetUserProfileUrl = async () => {
-      try {
-        if (!firstRender.current) {
-          return;
-        }
-        firstRender.current = false;
-        const response = await axios.get<Blob>(
-          'https://graph.microsoft.com/v1.0/me/photo/$value',
-          {
-            responseType: 'blob',
-          }
-        );
-        setUserProfileUrl(URL.createObjectURL(response.data));
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    getAndSetUserProfileUrl();
-  }, []);
-  useEffect(() => {
+    if (!accounts || !accounts.length || !(accounts.length > 0)) {
+      return;
+    }
     toggleColorScheme(
       (localStorage.getItem('defaultTheme') as ColorScheme) ?? 'light'
     );
     setNavbarOpened(localStorage.getItem('navbarOpenedByDefault') === 'true');
     setAsideOpened(localStorage.getItem('asideOpenedByDefault') === 'true');
+    const callbackId = msalInstance.addEventCallback((message) => {
+      console.log(
+        `🚀 ~ file: _app.tsx ~ line 66 ~ callbackId ~ message`,
+        message
+      );
+      if (message.eventType === EventType.HANDLE_REDIRECT_END) {
+        axios
+          .get<Blob>('https://graph.microsoft.com/v1.0/me/photo/$value', {
+            responseType: 'blob',
+          })
+          .then((response) =>
+            setUserProfileUrl(URL.createObjectURL(response.data))
+          )
+          .catch((error) => console.log(error));
+      }
+    });
+
+    return () => {
+      if (callbackId) {
+        msalInstance.removeEventCallback(callbackId);
+      }
+    };
   }, []);
+
+  if (!accounts || !accounts.length || !(accounts.length > 0)) {
+    return (
+      <MsalProvider instance={msalInstance}>
+        <Unauthorized></Unauthorized>
+      </MsalProvider>
+    );
+  }
+
   return (
     <>
       <Head>
@@ -133,8 +136,8 @@ export default function App(props: AppProps & { userProfileUrl: string }) {
                   <AppHeader
                     navbarOpened={navbarOpened}
                     asideOpened={asideOpened}
-                    setNavbarOpen={setNavbarOpenedWithLocalStorageSideAffect}
-                    setAsideOpen={setAsideOpenedWithLocalStorageSideAffect}
+                    setNavbarOpen={setNavbarOpenedWithLocalStorageSideEffect}
+                    setAsideOpen={setAsideOpenedWithLocalStorageSideEffect}
                     userProfileUrl={userProfileUrl}
                   ></AppHeader>
                 }

@@ -3,14 +3,16 @@ import axios, { AxiosRequestConfig } from 'axios';
 import { msalInstance } from './msal';
 
 axios.interceptors.request.use(async (request) => {
+  // TODO try conditionally specifying scopes based off of the route
   const redirectResponse = await msalInstance.handleRedirectPromise();
   const account = msalInstance.getAllAccounts()[0];
   if (account == null) {
     const accessTokenRequest = {
       scopes: [
-        `${(
-          process.env['NEXT_PUBLIC_AZURE_AD_API_SCOPE']?.split(' ') ?? []
-        ).join(' ')}`.trim(),
+        'profile',
+        ...(process.env['NEXT_PUBLIC_AZURE_AD_SPACE_DELIMITED_SCOPES']
+          ?.split(' ')
+          ?.map((scope) => scope?.trim()) ?? []),
       ],
     };
     await msalInstance.acquireTokenRedirect({
@@ -24,7 +26,12 @@ axios.interceptors.request.use(async (request) => {
   } else {
     await enrichNewAccessTokenInAxiosRequest(
       account,
-      process.env['NEXT_PUBLIC_AZURE_AD_API_SCOPE']?.split(' ') ?? [],
+      [
+        'profile',
+        ...(process.env['NEXT_PUBLIC_AZURE_AD_SPACE_DELIMITED_SCOPES']
+          ?.split(' ')
+          ?.map((scope) => scope?.trim()) ?? []),
+      ],
       request
     );
   }
@@ -37,8 +44,8 @@ const enrichNewAccessTokenInAxiosRequest = async (
   request: AxiosRequestConfig<any>
 ): Promise<void> => {
   const accessTokenRequest = {
-    scopes: [`${scopes.join(' ')}`.trim()],
-    account: account,
+    scopes,
+    account,
   };
   try {
     if (account == null) {
