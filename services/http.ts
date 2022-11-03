@@ -1,9 +1,10 @@
 import { AccountInfo, InteractionRequiredAuthError } from '@azure/msal-browser';
-import axios, { AxiosRequestConfig } from 'axios';
+import axiosLibrary, { AxiosRequestConfig } from 'axios';
 import { msalInstance } from './msal';
 
+const axios = axiosLibrary.create();
+
 axios.interceptors.request.use(async (request) => {
-  // TODO try conditionally specifying scopes based off of the route
   const redirectResponse = await msalInstance.handleRedirectPromise();
   const account = msalInstance.getAllAccounts()[0];
   if (account == null) {

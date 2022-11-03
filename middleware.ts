@@ -53,7 +53,10 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/api/randomNumber'],
+  matcher: [
+    '/api/randomNumber',
+    // '/api/profile-photo/:path*'
+  ],
 };
 
 export interface AzureAdJwt {
