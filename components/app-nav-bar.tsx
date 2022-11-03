@@ -7,7 +7,7 @@ import {
 } from '@mantine/core';
 import Link from 'next/link';
 
-import { Group, ActionIcon, Box } from '@mantine/core';
+import { Group } from '@mantine/core';
 import { IconHome, IconSettings } from '@tabler/icons';
 
 type AppNavBarProps = {
