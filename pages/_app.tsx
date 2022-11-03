@@ -63,17 +63,17 @@ export default function App(props: AppProps & { userProfileUrl: string }) {
     setNavbarOpened(localStorage.getItem('navbarOpenedByDefault') === 'true');
     setAsideOpened(localStorage.getItem('asideOpenedByDefault') === 'true');
     const callbackId = msalInstance.addEventCallback((message) => {
-      console.log(
-        `🚀 ~ file: _app.tsx ~ line 66 ~ callbackId ~ message`,
-        message
-      );
       if (message.eventType === EventType.HANDLE_REDIRECT_END) {
+        const account = accounts[0];
+        if (!account?.username) {
+          return;
+        }
         axios
-          .get<Blob>('https://graph.microsoft.com/v1.0/me/photo/$value', {
+          .get(`/api/profile-photo/${account.username}`, {
             responseType: 'blob',
           })
           .then((response) =>
-            setUserProfileUrl(URL.createObjectURL(response.data))
+            setUserProfileUrl(URL.createObjectURL(response?.data))
           )
           .catch((error) => console.log(error));
       }

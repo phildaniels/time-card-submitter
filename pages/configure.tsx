@@ -18,18 +18,6 @@ const Configure: NextPage = () => {
   );
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [radioValue, setRadioValue] = useState(StepOneRadioSelection.Blank);
-  useEffect(() => {
-    axios
-      .get<{ randomNumber: number; message: number }>('/api/randomNumber')
-      .then((response) => {
-        console.log(
-          `🚀 ~ file: configure.tsx ~ line 30 ~ .then ~ response`,
-          response
-        );
-        setRandomNumber(response.data.randomNumber ?? response.data.message);
-      })
-      .catch((error) => console.error(error));
-  }, []);
   const nextStep = () =>
     setActive((current: number) => (current < 3 ? current + 1 : current));
   const prevStep = () =>
@@ -37,7 +25,6 @@ const Configure: NextPage = () => {
   return (
     <>
       <Card>
-        <Text>Random Number was {randomNumber}</Text>
         <Stepper active={active} onStepClick={setActive} breakpoint="sm">
           <Stepper.Step label="Step 1" description="Select an option">
             <Radio.Group
