@@ -1,21 +1,16 @@
 import { Text } from '@mantine/core';
-import { StepOneRadioSelection } from '../pages/configure';
+import { TempusWeekRangeHoursResponse } from '../models/timecard';
+import { StepOneRadioSelection } from '../pages/configure/[userId]';
+import { AppTimeTable } from './app-timetable';
 
 type AppConfigureStepperStepTwoProps = {
   radioSelection: StepOneRadioSelection;
+  timeCard: TempusWeekRangeHoursResponse;
 };
 
 export const AppConfigureStepperStepTwo = ({
   radioSelection,
+  timeCard,
 }: AppConfigureStepperStepTwoProps): JSX.Element => {
-  switch (radioSelection) {
-    case StepOneRadioSelection.Blank:
-      return <Text>Blank</Text>;
-    case StepOneRadioSelection.MostRecent:
-      return <Text>Most Recent</Text>;
-    case StepOneRadioSelection.ParticularDate:
-      return <Text>Particular Date</Text>;
-    default:
-      return <Text>Blank</Text>;
-  }
+  return <AppTimeTable timeCard={timeCard} />;
 };

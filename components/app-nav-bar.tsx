@@ -12,25 +12,35 @@ import { IconHome, IconSettings } from '@tabler/icons';
 
 type AppNavBarProps = {
   opened: boolean;
+  userId: string | undefined | null;
 };
 
-export const AppNavbar = ({ opened }: AppNavBarProps): JSX.Element => {
-  const data = [
-    {
-      icon: <IconHome size={24} />,
-      color: 'blue',
-      label: 'Home',
-      href: '/',
-    },
-    {
-      icon: <IconSettings size={24} />,
-      color: 'teal',
-      label: 'Configure',
-      href: '/configure',
-    },
-    // { icon: <IconMessages size={16} />, color: 'violet', label: 'Discussions' },
-    // { icon: <IconDatabase size={16} />, color: 'grape', label: 'Databases' },
-  ];
+export const AppNavbar = ({ opened, userId }: AppNavBarProps): JSX.Element => {
+  const data = userId
+    ? [
+        {
+          icon: <IconHome size={24} />,
+          color: 'blue',
+          label: 'Home',
+          href: '/',
+        },
+        {
+          icon: <IconSettings size={24} />,
+          color: 'teal',
+          label: 'Configure',
+          href: `/configure/${userId}`,
+        },
+        // { icon: <IconMessages size={16} />, color: 'violet', label: 'Discussions' },
+        // { icon: <IconDatabase size={16} />, color: 'grape', label: 'Databases' },
+      ]
+    : [
+        {
+          icon: <IconHome size={24} />,
+          color: 'blue',
+          label: 'Home',
+          href: '/',
+        },
+      ];
   const { colorScheme } = useMantineColorScheme();
   if (!opened) {
     return <></>;

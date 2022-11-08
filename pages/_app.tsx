@@ -32,6 +32,7 @@ export default function App(props: AppProps & { userProfileUrl: string }) {
   const [asideOpened, setAsideOpened] = useState(false);
   const [userProfileUrl, setUserProfileUrl] = useState<string | null>(null);
   const [navbarOpened, setNavbarOpened] = useState(false);
+  const [userId, setUserId] = useState<string | null>();
 
   const theme = useMantineTheme();
 
@@ -62,6 +63,7 @@ export default function App(props: AppProps & { userProfileUrl: string }) {
     );
     setNavbarOpened(localStorage.getItem('navbarOpenedByDefault') === 'true');
     setAsideOpened(localStorage.getItem('asideOpenedByDefault') === 'true');
+    setUserId(accounts[0]?.username);
     const callbackId = msalInstance.addEventCallback((message) => {
       if (message.eventType === EventType.HANDLE_REDIRECT_END) {
         const account = accounts[0];
@@ -84,7 +86,7 @@ export default function App(props: AppProps & { userProfileUrl: string }) {
         msalInstance.removeEventCallback(callbackId);
       }
     };
-  }, []);
+  }, [accounts]);
 
   if (!accounts || !accounts.length || !(accounts.length > 0)) {
     return (
@@ -129,7 +131,9 @@ export default function App(props: AppProps & { userProfileUrl: string }) {
                 navbarOffsetBreakpoint="sm"
                 asideOffsetBreakpoint="sm"
                 fixed
-                navbar={<AppNavbar opened={navbarOpened}></AppNavbar>}
+                navbar={
+                  <AppNavbar opened={navbarOpened} userId={userId}></AppNavbar>
+                }
                 aside={<AppAside opened={asideOpened}></AppAside>}
                 footer={<AppFooter></AppFooter>}
                 header={
